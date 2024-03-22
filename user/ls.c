@@ -27,8 +27,8 @@ ls(char *path)
 {
   char buf[512], *p;
   int fd;
-  struct dirent de;
-  struct stat st;
+  struct dirent de;	// to read dirent
+  struct stat st;	// meta data
 
   if((fd = open(path, 0)) < 0){
     fprintf(2, "ls: cannot open %s\n", path);
