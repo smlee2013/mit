@@ -105,5 +105,5 @@ struct proc {
   char name[16];               // Process name (debugging)
   
   // add the variable to save mask
-  int trace_mask;s
+  int trace_mask;
 };

@@ -99,9 +99,11 @@ sys_uptime(void)
 uint64
 sys_trace(void)
 {
-  int n;
-  if(argint(0, &n) < 0)
+  int mask;// 取用户态传来的掩码
+  if(argint(0, &mask) < 0)
     return -1;
-  printf("sys_trace:Hi!  n is %d\n", n);
+  
+  myproc()->trace_mask = mask;
+  // printf("sys_trace:Hi!  n is %d\n", n);
   return 0;
 }
