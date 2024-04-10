@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+uint64 acquire_freemem();
 
 uint64
 sys_exit(void)
@@ -115,13 +116,12 @@ sys_sysinfo(void){
   struct proc *p = myproc();
   
   info.nproc = -1;
-  info.freemem = -2;
+  info.freemem = acquire_freemem();
   if(argaddr(0, &addr) < 0)
     return -1;
     
   if(copyout(p->pagetable, addr, (char*)&info, sizeof(info)) < 0)
     return -1;
-  return 0;
-  printf("sysinfo is running!\n");
+    
   return 0;
 }
