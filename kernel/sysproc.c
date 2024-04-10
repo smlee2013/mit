@@ -107,3 +107,21 @@ sys_trace(void)
   // printf("sys_trace:Hi!  n is %d\n", n);
   return 0;
 }
+
+uint64
+sys_sysinfo(void){
+  struct sysinfo info;
+  uint64 addr;
+  struct proc *p = myproc();
+  
+  info.nproc = -1;
+  info.freemem = -2;
+  if(argaddr(0, &addr) < 0)
+    return -1;
+    
+  if(copyout(p->pagetable, addr, (char*)&info, sizeof(info)) < 0)
+    return -1;
+  return 0;
+  printf("sysinfo is running!\n");
+  return 0;
+}
