@@ -43,13 +43,21 @@ sys_sbrk(void)
 {
   int addr;
   int n;
-
+  struct proc * p = myproc();
   if(argint(0, &n) < 0)
     return -1;
-  addr = myproc()->sz;
+  addr = p->sz;
   //if(growproc(n) < 0)
   //  return -1;
-  myproc()->sz += n;
+  //printf("sys_sbrk: adding n to sz\n");
+  if(p->sz + n > 0){
+    if(n > 0)
+      p->sz += n;
+    else 
+      p->sz = uvmdealloc(p->pagetable, p->sz, p->sz + n);
+  }else {
+    return -1;
+  }
   return addr;
 }
 

@@ -233,6 +233,44 @@ userinit(void)
   release(&p->lock);
 }
 
+int
+is_lazy_alloc_va(uint64 va)
+{
+  //printf("is_lazy_alloc: in!\n");
+  struct proc *p = myproc();
+  if(va >= p->sz){
+    //printf("is_lazy_alloc: 0 out!\n");
+    return 0;
+  }
+  //printf("is_lazy_alloc: 1 out!\n");
+  if(va < PGROUNDDOWN(p->trapframe->sp) && va >= PGROUNDDOWN(p->trapframe->sp)-PGSIZE)
+    return 0;
+  return 1;
+} 
+
+int
+lazy_alloc(uint64 va)
+{
+  //printf("lazy_alloc: in!\n");
+  va = PGROUNDDOWN(va);
+  char* mem = kalloc();
+  if(mem == 0){
+    //uvmdealloc(pagetable, a, oldsz);
+    //printf("lazy_alloc: -1 out!\n");
+    return -1;
+  }
+  memset(mem, 0, PGSIZE);
+  struct proc *p = myproc();
+  if(mappages(p->pagetable, va, PGSIZE, (uint64)mem, PTE_W|PTE_X|PTE_R|PTE_U) != 0){
+    kfree(mem);
+    //uvmdealloc(pagetable, a, oldsz);
+    //printf("lazy_alloc: -2 out!\n");
+    return -1;
+  }
+  //printf("lazy_alloc: 0 out!\n");
+  return 0;
+}
+
 // Grow or shrink user memory by n bytes.
 // Return 0 on success, -1 on failure.
 int
