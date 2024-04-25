@@ -5,6 +5,8 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+// add
+void *memcpy(void *dst, const void *src, uint n);
 
 struct spinlock tickslock;
 uint ticks;
@@ -27,6 +29,43 @@ void
 trapinithart(void)
 {
   w_stvec((uint64)kernelvec);
+}
+
+void
+store(void)
+{
+  struct proc * p = myproc();
+  /*  40 */   p->tra = p->trapframe->ra;
+  /*  48 */   p->tsp = p->trapframe->sp;
+  /*  56 */   p->tgp = p->trapframe->gp;
+  /*  64 */   p->ttp = p->trapframe->tp;
+  /*  72 */   p->tt0 = p->trapframe->t0;
+  /*  80 */   p->tt1 = p->trapframe->t1;
+  /*  88 */   p->tt2 = p->trapframe->t2;
+  /*  96 */   p->ts0 = p->trapframe->s0;
+  /* 104 */   p->ts1 = p->trapframe->s1;
+  /* 112 */   p->ta0 = p->trapframe->a0;
+  /* 120 */   p->ta1 = p->trapframe->a1;
+  /* 128 */   p->ta2 = p->trapframe->a2;
+  /* 136 */   p->ta3 = p->trapframe->a3;
+  /* 144 */   p->ta4 = p->trapframe->a4;
+  /* 152 */   p->ta5 = p->trapframe->a5;
+  /* 160 */   p->ta6 = p->trapframe->a6;
+  /* 168 */   p->ta7 = p->trapframe->a7;
+  /* 176 */   p->ts2 = p->trapframe->s2;
+  /* 184 */   p->ts3 = p->trapframe->s3;
+  /* 192 */   p->ts4 = p->trapframe->s4;
+  /* 200 */   p->ts5 = p->trapframe->s5;
+  /* 208 */   p->ts6 = p->trapframe->s6;
+  /* 216 */   p->ts7 = p->trapframe->s7;
+  /* 224 */   p->ts8 = p->trapframe->s8;
+  /* 232 */   p->ts9 = p->trapframe->s9;
+  /* 240 */   p->ts10 = p->trapframe->s10;
+  /* 248 */   p->ts11 = p->trapframe->s11;
+  /* 256 */   p->tt3 = p->trapframe->t3;
+  /* 264 */   p->tt4 = p->trapframe->t4;
+  /* 272 */   p->tt5 = p->trapframe->t5;
+  /* 280 */   p->tt6 = p->trapframe->t6;
 }
 
 //
@@ -77,9 +116,20 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2){
+    // to do: logic
+    if (p->ticks > 0){
+      p->ticks_cnt++;
+      if (p->handler_running == 0 && p->ticks_cnt > p->ticks){
+        p->ticks_cnt = 0;
+        p->ticks_epc = p->trapframe->epc;
+        store();
+        p->handler_running = 1;
+        p->trapframe->epc = p->handler;
+      }
+    }
     yield();
-
+  }
   usertrapret();
 }
 
